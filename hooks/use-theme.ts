@@ -1,30 +1,48 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type Theme = "dark" | "light";
 
 const STORAGE_KEY = "theme";
 
+function setCookie(value: string) {
+	if ("cookieStore" in window) {
+		(window.cookieStore as CookieStore).set({
+			name: STORAGE_KEY,
+			value,
+			path: "/",
+			maxAge: 31536000,
+			sameSite: "lax",
+		});
+	} else {
+		// biome-ignore lint/suspicious/noDocumentCookie: fallback for browsers without Cookie Store API
+		document.cookie = `${STORAGE_KEY}=${value};path=/;max-age=31536000;SameSite=Lax`;
+	}
+}
+
+type CookieStore = {
+	set(options: {
+		name: string;
+		value: string;
+		path: string;
+		maxAge: number;
+		sameSite: string;
+	}): Promise<void>;
+};
+
 export function useTheme() {
-	const [theme, setThemeState] = useState<Theme | null>(null);
-
-	useEffect(() => {
-		const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
-		if (stored) {
-			setThemeState(stored);
-			return;
+	const [theme, setThemeState] = useState<Theme>(() => {
+		if (typeof document !== "undefined") {
+			return (document.documentElement.dataset.theme as Theme) ?? "dark";
 		}
-		const prefersDark = window.matchMedia(
-			"(prefers-color-scheme: dark)",
-		).matches;
-		setThemeState(prefersDark ? "dark" : "light");
-	}, []);
+		return "dark";
+	});
 
 	useEffect(() => {
-		if (!theme) return;
 		document.documentElement.dataset.theme = theme;
 		localStorage.setItem(STORAGE_KEY, theme);
+		setCookie(theme);
 	}, [theme]);
 
 	const toggleTheme = useCallback(() => {
@@ -35,7 +53,5 @@ export function useTheme() {
 		setThemeState(t);
 	}, []);
 
-	const isReady = useMemo(() => theme !== null, [theme]);
-
-	return { theme: theme ?? "dark", toggleTheme, setTheme, isReady } as const;
+	return { theme, toggleTheme, setTheme } as const;
 }

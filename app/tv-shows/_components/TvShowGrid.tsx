@@ -1,8 +1,9 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -17,14 +18,10 @@ import {
 	ModalTitle,
 } from "@/components/ui/Modal";
 import { Textarea } from "@/components/ui/Textarea";
-
-interface TvShowData {
-	key: string;
-	title: string;
-	description: string;
-	recommendedAge: number;
-	lastUpdated?: string;
-}
+import { tvShowKeys } from "@/lib/queries/tv-shows";
+import { initialActionState } from "@/lib/schemas/action-state";
+import type { TvShow } from "@/lib/types";
+import { deleteTvShowAction, updateTvShowAction } from "../actions";
 
 function getInitials(title: string) {
 	return title
@@ -44,30 +41,55 @@ function formatTimeAgo(dateStr: string) {
 	return `Added ${days}d ago`;
 }
 
-export function TvShowGrid({ items }: { items: TvShowData[] }) {
-	const [deleteTarget, setDeleteTarget] = useState<TvShowData | null>(null);
-	const [editTarget, setEditTarget] = useState<TvShowData | null>(null);
+export function TvShowGrid({ items }: { items: TvShow[] }) {
+	const queryClient = useQueryClient();
+	const [deleteTarget, setDeleteTarget] = useState<TvShow | null>(null);
+	const [editTarget, setEditTarget] = useState<TvShow | null>(null);
+	const [editFormKey, setEditFormKey] = useState(0);
 
-	function handleConfirmDelete() {
-		if (!deleteTarget) return;
-		setDeleteTarget(null);
-	}
+	const boundDeleteAction = deleteTvShowAction.bind(
+		null,
+		deleteTarget?.["@key"] ?? "",
+	);
+	const [deleteState, deleteAction, isDeleting] = useActionState(
+		boundDeleteAction,
+		initialActionState,
+	);
 
-	function handleConfirmEdit() {
-		if (!editTarget) return;
-		setEditTarget(null);
-	}
+	const boundEditAction = updateTvShowAction.bind(
+		null,
+		editTarget?.title ?? "",
+	);
+	const [editState, editAction, isEditing] = useActionState(
+		boundEditAction,
+		initialActionState,
+	);
+
+	useEffect(() => {
+		if (deleteState.success) {
+			queryClient.invalidateQueries({ queryKey: tvShowKeys.all });
+			setDeleteTarget(null);
+		}
+	}, [deleteState, queryClient]);
+
+	useEffect(() => {
+		if (editState.success) {
+			queryClient.invalidateQueries({ queryKey: tvShowKeys.all });
+			setEditTarget(null);
+			setEditFormKey((k) => k + 1);
+		}
+	}, [editState, queryClient]);
 
 	return (
 		<>
 			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 				{items.map((show) => (
 					<div
-						key={show.key}
+						key={show["@key"]}
 						className="group relative flex flex-col overflow-hidden rounded-xl bg-surface-container-high transition-colors hover:bg-surface-container-highest"
 					>
 						<Link
-							href={`/tv-shows/${encodeURIComponent(show.key)}`}
+							href={`/tv-shows/${encodeURIComponent(show["@key"])}`}
 							className="flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-primary-dim/30 to-primary/10"
 						>
 							<span className="text-5xl font-bold text-on-surface/10 select-none">
@@ -80,7 +102,7 @@ export function TvShowGrid({ items }: { items: TvShowData[] }) {
 
 						<div className="flex flex-col gap-2 p-4">
 							<Link
-								href={`/tv-shows/${encodeURIComponent(show.key)}`}
+								href={`/tv-shows/${encodeURIComponent(show["@key"])}`}
 								className="truncate text-sm font-semibold text-on-surface"
 							>
 								{show.title}
@@ -90,9 +112,12 @@ export function TvShowGrid({ items }: { items: TvShowData[] }) {
 							</p>
 
 							<div className="flex items-center justify-between pt-1">
-								{show.lastUpdated && (
-									<span className="text-[10px] font-medium uppercase tracking-wider text-on-surface-variant">
-										{formatTimeAgo(show.lastUpdated)}
+								{show["@lastUpdated"] && (
+									<span
+										suppressHydrationWarning
+										className="text-[10px] font-medium uppercase tracking-wider text-on-surface-variant"
+									>
+										{formatTimeAgo(show["@lastUpdated"])}
 									</span>
 								)}
 								<div className="ml-auto flex items-center gap-1">
@@ -132,33 +157,39 @@ export function TvShowGrid({ items }: { items: TvShowData[] }) {
 						Update the details for &ldquo;{editTarget?.title}&rdquo;.
 					</ModalDescription>
 				</ModalHeader>
-				<ModalBody>
-					<Input
-						id="edit-show-title"
-						label="Title"
-						defaultValue={editTarget?.title}
-					/>
-					<Textarea
-						id="edit-show-description"
-						label="Description"
-						defaultValue={editTarget?.description}
-					/>
-					<Input
-						id="edit-show-age"
-						label="Recommended Age"
-						type="number"
-						min={0}
-						defaultValue={editTarget?.recommendedAge}
-					/>
-				</ModalBody>
-				<ModalFooter className="flex-row justify-end">
-					<Button variant="ghost" onClick={() => setEditTarget(null)}>
-						Cancel
-					</Button>
-					<Button variant="primary" onClick={handleConfirmEdit}>
-						Save Changes
-					</Button>
-				</ModalFooter>
+				<form key={editFormKey} action={editAction}>
+					<ModalBody>
+						<Textarea
+							id="edit-show-description"
+							name="description"
+							label="Description"
+							defaultValue={
+								editState.data?.description ?? editTarget?.description
+							}
+						/>
+						<Input
+							id="edit-show-age"
+							name="recommendedAge"
+							label="Recommended Age"
+							type="number"
+							defaultValue={
+								editState.data?.recommendedAge ?? editTarget?.recommendedAge
+							}
+						/>
+					</ModalBody>
+					<ModalFooter className="flex-row justify-end">
+						<Button
+							type="button"
+							variant="ghost"
+							onClick={() => setEditTarget(null)}
+						>
+							Cancel
+						</Button>
+						<Button type="submit" variant="primary" disabled={isEditing}>
+							{isEditing ? "Saving..." : "Save Changes"}
+						</Button>
+					</ModalFooter>
+				</form>
 			</Modal>
 
 			{/* Delete TV Show Modal */}
@@ -177,22 +208,26 @@ export function TvShowGrid({ items }: { items: TvShowData[] }) {
 						with this show will also be removed.
 					</ModalDescription>
 				</ModalHeader>
-				<ModalFooter>
-					<Button
-						variant="destructive"
-						className="w-full"
-						onClick={handleConfirmDelete}
-					>
-						Delete
-					</Button>
-					<Button
-						variant="ghost"
-						className="w-full"
-						onClick={() => setDeleteTarget(null)}
-					>
-						Cancel
-					</Button>
-				</ModalFooter>
+				<form action={deleteAction}>
+					<ModalFooter>
+						<Button
+							type="submit"
+							variant="destructive"
+							className="w-full"
+							disabled={isDeleting}
+						>
+							{isDeleting ? "Deleting..." : "Delete"}
+						</Button>
+						<Button
+							type="button"
+							variant="ghost"
+							className="w-full"
+							onClick={() => setDeleteTarget(null)}
+						>
+							Cancel
+						</Button>
+					</ModalFooter>
+				</form>
 			</Modal>
 		</>
 	);

@@ -85,7 +85,10 @@ export function WatchlistRow({
 					{tvShowCount ?? 0} {tvShowCount === 1 ? "show" : "shows"}
 				</span>
 				{lastUpdated && (
-					<span className="text-[10px] text-on-surface-variant">
+					<span
+						suppressHydrationWarning
+						className="text-[10px] text-on-surface-variant"
+					>
 						{formatTimeAgo(lastUpdated)}
 					</span>
 				)}

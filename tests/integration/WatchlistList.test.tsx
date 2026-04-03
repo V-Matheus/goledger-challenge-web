@@ -1,7 +1,9 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { WatchlistList } from "@/app/watchlist/_components/WatchlistList";
+import type { Watchlist } from "@/lib/types";
+import { renderWithProviders } from "../helpers/render";
 
 vi.mock("next/link", () => ({
 	default: ({
@@ -15,6 +17,11 @@ vi.mock("next/link", () => ({
 	),
 }));
 
+vi.mock("@/app/watchlist/actions", () => ({
+	updateWatchlistAction: vi.fn(),
+	deleteWatchlistAction: vi.fn(),
+}));
+
 beforeEach(() => {
 	HTMLDialogElement.prototype.showModal = vi.fn(function (
 		this: HTMLDialogElement,
@@ -26,31 +33,44 @@ beforeEach(() => {
 	});
 });
 
-const items = [
+const items: Watchlist[] = [
 	{
-		key: "watchlist:1",
+		"@assetType": "watchlist",
+		"@key": "watchlist:1",
+		"@lastTouchBy": "org1MSP",
+		"@lastTx": "tx1",
+		"@lastTxID": "txid1",
+		"@lastUpdated": "2026-04-03T12:00:00Z",
 		title: "Sci-Fi Curations",
 		description: "Best sci-fi series.",
-		tvShowCount: 3,
-		lastUpdated: "2026-04-03T12:00:00Z",
+		tvShows: [
+			{ "@assetType": "tvShows", "@key": "tvShows:1" },
+			{ "@assetType": "tvShows", "@key": "tvShows:2" },
+			{ "@assetType": "tvShows", "@key": "tvShows:3" },
+		],
 	},
 	{
-		key: "watchlist:2",
+		"@assetType": "watchlist",
+		"@key": "watchlist:2",
+		"@lastTouchBy": "org1MSP",
+		"@lastTx": "tx2",
+		"@lastTxID": "txid2",
+		"@lastUpdated": "2026-04-02T10:00:00Z",
 		title: "Weekend Binge",
 		description: "Quick series.",
-		tvShowCount: 1,
+		tvShows: [{ "@assetType": "tvShows", "@key": "tvShows:1" }],
 	},
 ];
 
 describe("WatchlistList", () => {
 	it("renders all watchlist items", () => {
-		render(<WatchlistList items={items} />);
+		renderWithProviders(<WatchlistList items={items} />);
 		expect(screen.getByText("Sci-Fi Curations")).toBeInTheDocument();
 		expect(screen.getByText("Weekend Binge")).toBeInTheDocument();
 	});
 
 	it("renders links to watchlist detail pages", () => {
-		render(<WatchlistList items={items} />);
+		renderWithProviders(<WatchlistList items={items} />);
 		const links = screen.getAllByRole("link");
 		expect(
 			links.some((l) => l.getAttribute("href")?.includes("watchlist%3A1")),
@@ -58,7 +78,7 @@ describe("WatchlistList", () => {
 	});
 
 	it("opens delete modal when delete button is clicked", async () => {
-		render(<WatchlistList items={items} />);
+		renderWithProviders(<WatchlistList items={items} />);
 		await userEvent.click(
 			screen.getByRole("button", { name: /delete sci-fi curations/i }),
 		);
@@ -66,7 +86,7 @@ describe("WatchlistList", () => {
 	});
 
 	it("closes delete modal on cancel", async () => {
-		render(<WatchlistList items={items} />);
+		renderWithProviders(<WatchlistList items={items} />);
 		await userEvent.click(
 			screen.getByRole("button", { name: /delete sci-fi curations/i }),
 		);
@@ -77,7 +97,7 @@ describe("WatchlistList", () => {
 	});
 
 	it("opens edit modal when edit button is clicked", async () => {
-		render(<WatchlistList items={items} />);
+		renderWithProviders(<WatchlistList items={items} />);
 		await userEvent.click(
 			screen.getByRole("button", { name: /edit sci-fi curations/i }),
 		);
@@ -85,7 +105,7 @@ describe("WatchlistList", () => {
 	});
 
 	it("edit modal has pre-filled fields", async () => {
-		render(<WatchlistList items={items} />);
+		renderWithProviders(<WatchlistList items={items} />);
 		await userEvent.click(
 			screen.getByRole("button", { name: /edit sci-fi curations/i }),
 		);
@@ -94,7 +114,7 @@ describe("WatchlistList", () => {
 	});
 
 	it("closes edit modal on cancel", async () => {
-		render(<WatchlistList items={items} />);
+		renderWithProviders(<WatchlistList items={items} />);
 		await userEvent.click(
 			screen.getByRole("button", { name: /edit sci-fi curations/i }),
 		);

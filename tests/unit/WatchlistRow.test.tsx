@@ -65,6 +65,18 @@ describe("WatchlistRow", () => {
 		expect(onDelete).toHaveBeenCalledOnce();
 	});
 
+	it("renders 'Just now' when updated less than 1 hour ago", () => {
+		const recent = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+		render(<WatchlistRow title="List" lastUpdated={recent} />);
+		expect(screen.getByText("Just now")).toBeInTheDocument();
+	});
+
+	it("renders days when updated more than 24 hours ago", () => {
+		const old = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
+		render(<WatchlistRow title="List" lastUpdated={old} />);
+		expect(screen.getByText("3d ago")).toBeInTheDocument();
+	});
+
 	it("does not render edit button when onEdit not provided", () => {
 		render(<WatchlistRow title="List" />);
 		expect(

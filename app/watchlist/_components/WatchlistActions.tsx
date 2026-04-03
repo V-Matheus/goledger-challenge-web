@@ -1,7 +1,8 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import {
@@ -15,10 +16,52 @@ import {
 	ModalTitle,
 } from "@/components/ui/Modal";
 import { Textarea } from "@/components/ui/Textarea";
+import { useWatchlists, watchlistKeys } from "@/lib/queries/watchlist";
+import { initialActionState } from "@/lib/schemas/action-state";
+import { createWatchlistAction, deleteWatchlistAction } from "../actions";
 
 export function WatchlistActions() {
+	const queryClient = useQueryClient();
+	const { data } = useWatchlists();
+	const watchlists = data?.result ?? [];
+
 	const [createOpen, setCreateOpen] = useState(false);
+	const [formKey, setFormKey] = useState(0);
 	const [deleteOpen, setDeleteOpen] = useState(false);
+	const [deletingIndex, setDeletingIndex] = useState(0);
+
+	const [createState, createFormAction, isCreating] = useActionState(
+		createWatchlistAction,
+		initialActionState,
+	);
+
+	// Delete all: sequentially delete each watchlist
+	const currentKey = watchlists[deletingIndex]?.["@key"] ?? "";
+	const boundDelete = deleteWatchlistAction.bind(null, currentKey);
+	const [deleteState, deleteFormAction, isDeleting] = useActionState(
+		boundDelete,
+		initialActionState,
+	);
+
+	useEffect(() => {
+		if (createState.success) {
+			queryClient.invalidateQueries({ queryKey: watchlistKeys.all });
+			setCreateOpen(false);
+			setFormKey((k) => k + 1);
+		}
+	}, [createState, queryClient]);
+
+	useEffect(() => {
+		if (deleteState.success) {
+			if (deletingIndex < watchlists.length - 1) {
+				setDeletingIndex((i) => i + 1);
+			} else {
+				queryClient.invalidateQueries({ queryKey: watchlistKeys.all });
+				setDeleteOpen(false);
+				setDeletingIndex(0);
+			}
+		}
+	}, [deleteState, deletingIndex, watchlists.length, queryClient]);
 
 	return (
 		<>
@@ -42,24 +85,41 @@ export function WatchlistActions() {
 						Create a new collection to organize your favorite shows.
 					</ModalDescription>
 				</ModalHeader>
-				<ModalBody>
-					<Input
-						id="watchlist-title"
-						label="Title"
-						placeholder="e.g. Weekend Binge"
-					/>
-					<Textarea
-						id="watchlist-description"
-						label="Description"
-						placeholder="Briefly describe this watchlist..."
-					/>
-				</ModalBody>
-				<ModalFooter className="flex-row justify-end">
-					<Button variant="ghost" onClick={() => setCreateOpen(false)}>
-						Cancel
-					</Button>
-					<Button variant="primary">Save</Button>
-				</ModalFooter>
+				<form key={formKey} action={createFormAction}>
+					<ModalBody>
+						<Input
+							id="watchlist-title"
+							name="title"
+							label="Title"
+							placeholder="e.g. Weekend Binge"
+							defaultValue={createState.data?.title}
+						/>
+						{createState.fieldErrors?.title && (
+							<p className="text-xs text-error">
+								{createState.fieldErrors.title[0]}
+							</p>
+						)}
+						<Textarea
+							id="watchlist-description"
+							name="description"
+							label="Description"
+							placeholder="Briefly describe this watchlist..."
+							defaultValue={createState.data?.description}
+						/>
+					</ModalBody>
+					<ModalFooter className="flex-row justify-end">
+						<Button
+							type="button"
+							variant="ghost"
+							onClick={() => setCreateOpen(false)}
+						>
+							Cancel
+						</Button>
+						<Button type="submit" variant="primary" disabled={isCreating}>
+							{isCreating ? "Saving..." : "Save"}
+						</Button>
+					</ModalFooter>
+				</form>
 			</Modal>
 
 			{/* Delete Confirmation Modal */}
@@ -76,18 +136,26 @@ export function WatchlistActions() {
 						shows will be permanently removed.
 					</ModalDescription>
 				</ModalHeader>
-				<ModalFooter>
-					<Button variant="destructive" className="w-full">
-						Delete
-					</Button>
-					<Button
-						variant="ghost"
-						className="w-full"
-						onClick={() => setDeleteOpen(false)}
-					>
-						Cancel
-					</Button>
-				</ModalFooter>
+				<form action={deleteFormAction}>
+					<ModalFooter>
+						<Button
+							type="submit"
+							variant="destructive"
+							className="w-full"
+							disabled={isDeleting}
+						>
+							{isDeleting ? "Deleting..." : "Delete"}
+						</Button>
+						<Button
+							type="button"
+							variant="ghost"
+							className="w-full"
+							onClick={() => setDeleteOpen(false)}
+						>
+							Cancel
+						</Button>
+					</ModalFooter>
+				</form>
 			</Modal>
 		</>
 	);

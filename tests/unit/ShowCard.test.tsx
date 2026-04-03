@@ -43,10 +43,22 @@ describe("ShowCard", () => {
 		).toBeInTheDocument();
 	});
 
-	it("renders formatted time when lastUpdated is provided", () => {
+	it("renders 'Added just now' when less than 1 hour ago", () => {
+		const recent = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+		render(<ShowCard {...props} lastUpdated={recent} />);
+		expect(screen.getByText("Added just now")).toBeInTheDocument();
+	});
+
+	it("renders hours when less than 24 hours ago", () => {
 		const recent = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
 		render(<ShowCard {...props} lastUpdated={recent} />);
 		expect(screen.getByText("Added 2h ago")).toBeInTheDocument();
+	});
+
+	it("renders days when more than 24 hours ago", () => {
+		const old = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
+		render(<ShowCard {...props} lastUpdated={old} />);
+		expect(screen.getByText("Added 3d ago")).toBeInTheDocument();
 	});
 
 	it("does not render time when lastUpdated is not provided", () => {

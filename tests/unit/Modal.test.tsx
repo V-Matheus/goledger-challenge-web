@@ -80,6 +80,16 @@ describe("Modal", () => {
 		const content = screen.getByText("Large").parentElement;
 		expect(content?.className).toContain("max-w-lg");
 	});
+	it("does not call onClose when clicking inside content", async () => {
+		const onClose = vi.fn();
+		render(
+			<Modal open onClose={onClose}>
+				<p>Inner content</p>
+			</Modal>,
+		);
+		await userEvent.click(screen.getByText("Inner content"));
+		expect(onClose).not.toHaveBeenCalled();
+	});
 });
 
 describe("ModalClose", () => {

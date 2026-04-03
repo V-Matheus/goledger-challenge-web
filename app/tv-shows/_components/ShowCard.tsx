@@ -64,7 +64,10 @@ export function ShowCard({
 
 				<div className="flex items-center justify-between pt-1">
 					{lastUpdated && (
-						<span className="text-[10px] font-medium uppercase tracking-wider text-on-surface-variant">
+						<span
+							suppressHydrationWarning
+							className="text-[10px] font-medium uppercase tracking-wider text-on-surface-variant"
+						>
 							{formatTimeAgo(lastUpdated)}
 						</span>
 					)}

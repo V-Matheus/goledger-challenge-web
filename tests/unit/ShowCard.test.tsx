@@ -1,0 +1,63 @@
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+import { ShowCard } from "@/app/tv-shows/_components/ShowCard";
+
+describe("ShowCard", () => {
+	const props = {
+		title: "Breaking Bad",
+		description: "A chemistry teacher turned drug manufacturer.",
+		recommendedAge: 16,
+	};
+
+	it("renders title", () => {
+		render(<ShowCard {...props} />);
+		expect(screen.getByText("Breaking Bad")).toBeInTheDocument();
+	});
+
+	it("renders description", () => {
+		render(<ShowCard {...props} />);
+		expect(
+			screen.getByText("A chemistry teacher turned drug manufacturer."),
+		).toBeInTheDocument();
+	});
+
+	it("renders recommended age badge", () => {
+		render(<ShowCard {...props} />);
+		expect(screen.getByText("16+")).toBeInTheDocument();
+	});
+
+	it("renders initials from title", () => {
+		render(<ShowCard {...props} />);
+		expect(screen.getByText("BB")).toBeInTheDocument();
+	});
+
+	it("renders single-word initials", () => {
+		render(<ShowCard {...props} title="Invencível" />);
+		expect(screen.getByText("I")).toBeInTheDocument();
+	});
+
+	it("renders data-slot attribute", () => {
+		const { container } = render(<ShowCard {...props} />);
+		expect(
+			container.querySelector("[data-slot='show-card']"),
+		).toBeInTheDocument();
+	});
+
+	it("renders formatted time when lastUpdated is provided", () => {
+		const recent = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+		render(<ShowCard {...props} lastUpdated={recent} />);
+		expect(screen.getByText("Added 2h ago")).toBeInTheDocument();
+	});
+
+	it("does not render time when lastUpdated is not provided", () => {
+		render(<ShowCard {...props} />);
+		expect(screen.queryByText(/Added/)).not.toBeInTheDocument();
+	});
+
+	it("renders more options button", () => {
+		render(<ShowCard {...props} />);
+		expect(
+			screen.getByRole("button", { name: /more options/i }),
+		).toBeInTheDocument();
+	});
+});

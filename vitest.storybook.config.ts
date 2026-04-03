@@ -17,6 +17,9 @@ export default defineConfig({
 			configDir: path.join(dirname, ".storybook"),
 		}),
 	],
+	optimizeDeps: {
+		include: ["lucide-react", "@storybook/addon-docs"],
+	},
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./"),

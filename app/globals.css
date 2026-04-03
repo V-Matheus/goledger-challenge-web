@@ -1,26 +1,218 @@
 @import "tailwindcss";
 
+/* ============================================
+   Theme: The Luminous Gallery (Light - default)
+   Reference: prints-ui/stitch/paleta-white.md
+   ============================================ */
 :root {
-	--background: #ffffff;
-	--foreground: #171717;
+	/* Primary */
+	--primary: #732ee4;
+	--primary-dim: #630ed4;
+	--primary-container: #7c3aed;
+	--on-primary: #ffffff;
+	--on-primary-fixed: #ffffff;
+	--primary-text: #732ee4;
+
+	/* Surface Hierarchy */
+	--background: #f8f9fa;
+	--surface: #f8f9fa;
+	--surface-dim: #e8e9eb;
+	--surface-bright: #ffffff;
+	--surface-container-lowest: #ffffff;
+	--surface-container-low: #f3f4f5;
+	--surface-container: #ededee;
+	--surface-container-high: #e4e5e6;
+	--surface-container-highest: #d9dadb;
+
+	/* On Surface */
+	--on-surface: #111827;
+	--on-surface-variant: #6b7280;
+
+	/* Outline */
+	--outline: #9ca3af;
+	--outline-variant: #d1d5db;
+
+	/* Error */
+	--error: #dc2626;
+	--error-container: #fecaca;
+	--on-error: #ffffff;
+	--on-error-container: #991b1b;
+
+	/* Success */
+	--success: #16a34a;
+	--success-container: #bbf7d0;
+	--on-success: #ffffff;
+	--on-success-container: #166534;
+
+	/* Warning */
+	--warning: #d97706;
+	--warning-container: #fde68a;
+	--on-warning: #ffffff;
+	--on-warning-container: #92400e;
+
+	/* Shadows */
+	--shadow-ambient: rgba(17, 24, 39, 0.05);
+	--shadow-elevated: rgba(17, 24, 39, 0.1);
 }
 
+/* ============================================
+   Theme: The Cinematic Curator (Dark)
+   Reference: prints-ui/stitch/paleta-black.md
+   ============================================ */
+[data-theme="dark"] {
+	/* Primary */
+	--primary: #bd9dff;
+	--primary-dim: #8a4cfc;
+	--primary-container: #6d28d9;
+	--on-primary: #1a0038;
+	--on-primary-fixed: #ffffff;
+	--primary-text: #bd9dff;
+
+	/* Surface Hierarchy */
+	--background: #0e0e0f;
+	--surface: #0e0e0f;
+	--surface-dim: #0a0a0b;
+	--surface-bright: #2a292b;
+	--surface-container-lowest: #000000;
+	--surface-container-low: #131314;
+	--surface-container: #1a191b;
+	--surface-container-high: #201f21;
+	--surface-container-highest: #2b2a2c;
+
+	/* On Surface */
+	--on-surface: #ffffff;
+	--on-surface-variant: #a1a1aa;
+
+	/* Outline */
+	--outline: #71717a;
+	--outline-variant: #3f3f46;
+
+	/* Error */
+	--error: #ff6e84;
+	--error-container: #5c1a25;
+	--on-error: #3b0a14;
+	--on-error-container: #ffc2cc;
+
+	/* Success */
+	--success: #4ade80;
+	--success-container: #14532d;
+	--on-success: #052e16;
+	--on-success-container: #bbf7d0;
+
+	/* Warning */
+	--warning: #fbbf24;
+	--warning-container: #713f12;
+	--on-warning: #422006;
+	--on-warning-container: #fde68a;
+
+	/* Shadows (tinted with primary hue for cinematic feel) */
+	--shadow-ambient: rgba(138, 76, 252, 0.06);
+	--shadow-elevated: rgba(138, 76, 252, 0.12);
+}
+
+/* ============================================
+   Tailwind CSS 4 Theme Tokens
+   ============================================ */
 @theme inline {
+	/* Fonts */
+	--font-sans: var(--font-manrope), var(--font-inter), system-ui, sans-serif;
+	--font-display: var(--font-manrope), system-ui, sans-serif;
+	--font-body: var(--font-inter), system-ui, sans-serif;
+
+	/* Colors */
+	--color-primary: var(--primary);
+	--color-primary-dim: var(--primary-dim);
+	--color-primary-container: var(--primary-container);
+	--color-on-primary: var(--on-primary);
+	--color-on-primary-fixed: var(--on-primary-fixed);
+	--color-primary-text: var(--primary-text);
+
 	--color-background: var(--background);
-	--color-foreground: var(--foreground);
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
+	--color-surface: var(--surface);
+	--color-surface-dim: var(--surface-dim);
+	--color-surface-bright: var(--surface-bright);
+	--color-surface-container-lowest: var(--surface-container-lowest);
+	--color-surface-container-low: var(--surface-container-low);
+	--color-surface-container: var(--surface-container);
+	--color-surface-container-high: var(--surface-container-high);
+	--color-surface-container-highest: var(--surface-container-highest);
+
+	--color-on-surface: var(--on-surface);
+	--color-on-surface-variant: var(--on-surface-variant);
+
+	--color-outline: var(--outline);
+	--color-outline-variant: var(--outline-variant);
+
+	--color-error: var(--error);
+	--color-error-container: var(--error-container);
+	--color-on-error: var(--on-error);
+	--color-on-error-container: var(--on-error-container);
+
+	--color-success: var(--success);
+	--color-success-container: var(--success-container);
+	--color-on-success: var(--on-success);
+	--color-on-success-container: var(--on-success-container);
+
+	--color-warning: var(--warning);
+	--color-warning-container: var(--warning-container);
+	--color-on-warning: var(--on-warning);
+	--color-on-warning-container: var(--on-warning-container);
+
+	/* Shadows */
+	--shadow-ambient: 0px 12px 32px var(--shadow-ambient);
+	--shadow-elevated: 0px 8px 48px var(--shadow-elevated);
+
+	/* Border Radius */
+	--radius-sm: 0.25rem;
+	--radius-DEFAULT: 0.5rem;
+	--radius-md: 0.75rem;
+	--radius-lg: 1rem;
+	--radius-xl: 1.5rem;
+	--radius-full: 9999px;
 }
 
-@media (prefers-color-scheme: dark) {
-	:root {
-		--background: #0a0a0a;
-		--foreground: #ededed;
-	}
+/* ============================================
+   Base Styles
+   ============================================ */
+*,
+*::before,
+*::after {
+	transition:
+		background-color 0.3s ease,
+		color 0.3s ease,
+		border-color 0.3s ease,
+		box-shadow 0.3s ease;
 }
 
 body {
 	background: var(--background);
-	color: var(--foreground);
-	font-family: Arial, Helvetica, sans-serif;
+	color: var(--on-surface);
+}
+
+/* ============================================
+   Dialog / Modal
+   ============================================ */
+dialog[data-slot="modal"] {
+	position: fixed;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	max-width: none;
+	max-height: none;
+	margin: 0;
+	border: none;
+	padding: 0;
+	background: transparent;
+}
+
+dialog[data-slot="modal"]:not([open]) {
+	display: none;
+}
+
+dialog[data-slot="modal"]::backdrop {
+	background: rgb(0 0 0 / 60%);
+	backdrop-filter: blur(4px);
 }

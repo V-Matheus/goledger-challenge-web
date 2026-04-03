@@ -107,23 +107,77 @@ export function CardContent({ className, ...props }: ComponentProps<'div'>) {
 
 ---
 
-## Cores (CSS Variables)
+## Cores (Tailwind Tokens — definidos em `app/globals.css`)
 
+O projeto usa dois temas (light `:root` e dark `[data-theme="dark"]`) com CSS variables mapeadas para Tailwind via `@theme inline`. **Nunca use cores hardcoded** — sempre use os tokens abaixo.
+
+### Primary (accent / brand)
 ```
-bg-surface, bg-surface-raised       → fundos
-bg-primary, bg-secondary, bg-muted  → ações/estados
-bg-destructive                       → erros/danger
-
-text-foreground                     → texto principal
-text-foreground-subtle              → texto secundário
-text-muted-foreground               → texto desabilitado
-text-primary-foreground             → texto em bg primary
-
-border-border, border-input         → bordas padrão
-border-primary, border-destructive  → bordas de destaque
-
-ring-ring                           → focus ring
+bg-primary              → ações principais, CTAs
+bg-primary-dim          → gradientes (from)
+bg-primary-container    → gradientes (to), containers de destaque
+text-primary-text       → texto com cor de accent
+text-on-primary         → texto sobre bg-primary
+text-on-primary-fixed   → texto branco fixo sobre primary
 ```
+
+### Surfaces (hierarquia de fundos — do mais profundo ao mais elevado)
+```
+bg-background                  → fundo da página (body)
+bg-surface                     → canvas padrão
+bg-surface-dim                 → áreas rebaixadas
+bg-surface-bright              → glassmorphism, floating elements
+bg-surface-container-lowest    → hero sections (dark: #000, light: #fff)
+bg-surface-container-low       → zonas de conteúdo, sidebar
+bg-surface-container           → containers intermediários
+bg-surface-container-high      → cards elevados, fly-out menus
+bg-surface-container-highest   → cards interativos, hover states
+```
+
+### Texto
+```
+text-on-surface           → texto principal
+text-on-surface-variant   → texto secundário, metadata
+```
+
+### Outline (bordas — usar com parcimônia, preferir separação por surface tiers)
+```
+border-outline            → bordas padrão (evitar)
+border-outline-variant    → ghost borders (usar com opacity baixa)
+ring-primary              → focus ring
+```
+
+### Feedback (error / success / warning)
+```
+bg-error / text-error                     → erros inline
+bg-error-container / text-on-error-container → áreas de erro (mais sutil)
+bg-success / text-success                 → sucesso
+bg-success-container / text-on-success-container
+bg-warning / text-warning                 → avisos
+bg-warning-container / text-on-warning-container
+```
+
+### Shadows
+```
+shadow-ambient    → sombra difusa (cards, containers)
+shadow-elevated   → sombra para elementos flutuantes (modals, dropdowns)
+```
+
+### Border Radius
+```
+rounded-sm       → 0.25rem
+rounded-DEFAULT  → 0.5rem (padrão para buttons/cards)
+rounded-md       → 0.75rem
+rounded-lg       → 1rem
+rounded-xl       → 1.5rem (hero cards, featured)
+rounded-full     → pill shapes (chips, tags)
+```
+
+### Regras de Design
+- **No-Line Rule:** Nunca usar `border` para separar seções. Usar hierarquia de surfaces.
+- **Ghost Border:** Se acessibilidade exigir borda, usar `border-outline-variant` com opacity baixa (15-20%).
+- **Gradientes:** CTAs primários usam `bg-gradient-to-br from-primary-dim to-primary`.
+- **Glassmorphism:** Floating elements usam `bg-surface-bright/60 backdrop-blur-[24px]` (dark) ou `bg-surface-bright/80 backdrop-blur-[16px]` (light).
 
 ---
 

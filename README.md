@@ -46,6 +46,65 @@ curl -X POST "http://ec2-50-19-36-138.compute-1.amazonaws.com/api/query/search" 
 ```
 Tip: to read a specific asset, you can use the `readAsset` endpoint.
 
+## How to Run
+
+### Prerequisites
+
+- Node.js v24.14.1 (see `.nvmrc`) or Docker
+- Yarn package manager
+
+### Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+API_URL=http://ec2-50-19-36-138.compute-1.amazonaws.com
+API_USERNAME=<your-username>
+API_PASSWORD=<your-password>
+```
+
+### Running with Docker (recommended)
+
+```bash
+docker compose up --build
+```
+
+The application will be available at `http://localhost:3000`.
+
+### Running locally
+
+```bash
+# Install dependencies
+yarn install
+
+# Start development server
+yarn dev
+```
+
+The application will be available at `http://localhost:3000`.
+
+### Available Scripts
+
+| Command | Description |
+|---|---|
+| `yarn dev` | Start development server |
+| `yarn build` | Production build |
+| `yarn test:run` | Run unit and integration tests |
+| `yarn test:run --coverage` | Run tests with coverage report |
+| `yarn test:e2e` | Run end-to-end tests (Playwright) |
+| `yarn lint` | Run linter and format check (Biome) |
+| `yarn storybook` | Start Storybook on port 6006 |
+
+### Tech Stack
+
+- **Next.js 16** (App Router) with TypeScript
+- **Tailwind CSS 4** + Tailwind Variants
+- **TanStack React Query** for data fetching with server-side prefetch
+- **Zod 4** for form validation
+- **Vitest** + **Playwright** for testing
+- **Biome** for linting and formatting
+- **Storybook** for component documentation
+
 ## Complete the challenge
 
 To complete the challenge, you must send us the link to your forked repository with the code of your application. Please, provide instructions to execute the code.

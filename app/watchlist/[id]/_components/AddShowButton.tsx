@@ -1,7 +1,8 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { Check, Plus, Tv } from "lucide-react";
-import { useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import {
@@ -13,33 +14,50 @@ import {
 	ModalHeader,
 	ModalTitle,
 } from "@/components/ui/Modal";
+import { watchlistKeys } from "@/lib/queries/watchlist";
+import { initialActionState } from "@/lib/schemas/action-state";
+import type { TvShow, Watchlist } from "@/lib/types";
+import { updateWatchlistShowsAction } from "../../actions";
 
-interface TvShowOption {
-	"@key": string;
-	title: string;
-	description: string;
-	recommendedAge: number;
+interface AddShowButtonProps {
+	watchlistKey: string;
+	watchlist: Watchlist;
+	allShows: TvShow[];
 }
 
-const availableShows: TvShowOption[] = [
-	{
-		"@key": "tvShows:3",
-		title: "Breaking Bad",
-		description:
-			"A high school chemistry teacher turned methamphetamine manufacturer.",
-		recommendedAge: 16,
-	},
-	{
-		"@key": "tvShows:4",
-		title: "GoLedger Labs",
-		description: "Documentary series showcasing blockchain innovations.",
-		recommendedAge: 0,
-	},
-];
-
-export function AddShowButton({ existingKeys }: { existingKeys: string[] }) {
+export function AddShowButton({
+	watchlistKey,
+	watchlist,
+	allShows,
+}: AddShowButtonProps) {
+	const queryClient = useQueryClient();
 	const [open, setOpen] = useState(false);
 	const [selected, setSelected] = useState<Set<string>>(new Set());
+
+	const existingKeys = watchlist.tvShows?.map((ref) => ref["@key"]) ?? [];
+	const existingSet = new Set(existingKeys);
+
+	const allTvShowKeys = [...existingKeys, ...selected];
+	const boundUpdate = updateWatchlistShowsAction.bind(
+		null,
+		watchlist.title,
+		watchlist.description,
+		allTvShowKeys,
+	);
+	const [state, formAction, isPending] = useActionState(
+		boundUpdate,
+		initialActionState,
+	);
+
+	useEffect(() => {
+		if (state.success) {
+			queryClient.invalidateQueries({
+				queryKey: watchlistKeys.detail(watchlistKey),
+			});
+			setOpen(false);
+			setSelected(new Set());
+		}
+	}, [state, queryClient, watchlistKey]);
 
 	function toggleSelect(key: string) {
 		setSelected((prev) => {
@@ -53,14 +71,7 @@ export function AddShowButton({ existingKeys }: { existingKeys: string[] }) {
 		});
 	}
 
-	function handleSave() {
-		setOpen(false);
-		setSelected(new Set());
-	}
-
-	const filteredShows = availableShows.filter(
-		(s) => !existingKeys.includes(s["@key"]),
-	);
+	const filteredShows = allShows.filter((s) => !existingSet.has(s["@key"]));
 
 	return (
 		<>
@@ -77,7 +88,7 @@ export function AddShowButton({ existingKeys }: { existingKeys: string[] }) {
 						Select the TV shows you want to add.
 					</ModalDescription>
 				</ModalHeader>
-				<ModalBody>
+				<ModalBody className="max-h-80 overflow-y-auto">
 					{filteredShows.length === 0 ? (
 						<p className="py-4 text-center text-sm text-on-surface-variant">
 							All available shows are already in this watchlist.
@@ -92,7 +103,7 @@ export function AddShowButton({ existingKeys }: { existingKeys: string[] }) {
 										key={show["@key"]}
 										onClick={() => toggleSelect(show["@key"])}
 										data-selected={isSelected ? "" : undefined}
-										className="flex cursor-pointer items-center gap-4 rounded-xl p-3 text-left transition-colors hover:bg-surface-container data-[selected]:bg-primary/10"
+										className="flex cursor-pointer items-center gap-4 rounded-xl p-3 text-left transition-colors hover:bg-surface-container data-selected:bg-primary/10"
 									>
 										<div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-surface-container">
 											<Tv className="size-4 text-on-surface-variant/40" />
@@ -117,18 +128,26 @@ export function AddShowButton({ existingKeys }: { existingKeys: string[] }) {
 						</div>
 					)}
 				</ModalBody>
-				<ModalFooter className="flex-row justify-end">
-					<Button variant="ghost" onClick={() => setOpen(false)}>
-						Cancel
-					</Button>
-					<Button
-						variant="primary"
-						disabled={selected.size === 0}
-						onClick={handleSave}
-					>
-						Add {selected.size > 0 ? `(${selected.size})` : ""}
-					</Button>
-				</ModalFooter>
+				<form action={formAction}>
+					<ModalFooter className="flex-row justify-end">
+						<Button
+							type="button"
+							variant="ghost"
+							onClick={() => setOpen(false)}
+						>
+							Cancel
+						</Button>
+						<Button
+							type="submit"
+							variant="primary"
+							disabled={selected.size === 0 || isPending}
+						>
+							{isPending
+								? "Adding..."
+								: `Add ${selected.size > 0 ? `(${selected.size})` : ""}`}
+						</Button>
+					</ModalFooter>
+				</form>
 			</Modal>
 		</>
 	);

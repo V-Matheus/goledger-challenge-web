@@ -1,4 +1,5 @@
 import { ChevronRight } from "lucide-react";
+import Link from "next/link";
 import type { ComponentProps } from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -6,6 +7,7 @@ export interface WatchlistItemProps extends ComponentProps<"div"> {
 	title: string;
 	tvShowCount?: number;
 	lastUpdated?: string;
+	href?: string;
 }
 
 const AVATAR_COLORS = [
@@ -47,6 +49,7 @@ export function WatchlistItem({
 	title,
 	tvShowCount,
 	lastUpdated,
+	href,
 	...props
 }: WatchlistItemProps) {
 	const meta = [
@@ -56,15 +59,13 @@ export function WatchlistItem({
 		.filter(Boolean)
 		.join(" • ");
 
-	return (
-		<div
-			data-slot="watchlist-item"
-			className={twMerge(
-				"flex cursor-pointer items-center gap-3 rounded-lg p-2.5 transition-colors hover:bg-surface-container",
-				className,
-			)}
-			{...props}
-		>
+	const sharedClassName = twMerge(
+		"flex cursor-pointer items-center gap-3 rounded-lg p-2.5 transition-colors hover:bg-surface-container",
+		className,
+	);
+
+	const content = (
+		<>
 			<div
 				className={twMerge(
 					"flex size-10 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-on-primary-fixed",
@@ -86,6 +87,20 @@ export function WatchlistItem({
 			</div>
 
 			<ChevronRight className="size-4 shrink-0 text-on-surface-variant" />
+		</>
+	);
+
+	if (href) {
+		return (
+			<Link href={href} data-slot="watchlist-item" className={sharedClassName}>
+				{content}
+			</Link>
+		);
+	}
+
+	return (
+		<div data-slot="watchlist-item" className={sharedClassName} {...props}>
+			{content}
 		</div>
 	);
 }

@@ -1,7 +1,8 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import {
@@ -15,41 +16,61 @@ import {
 	ModalTitle,
 } from "@/components/ui/Modal";
 import { Textarea } from "@/components/ui/Textarea";
+import { watchlistKeys } from "@/lib/queries/watchlist";
+import { initialActionState } from "@/lib/schemas/action-state";
+import type { Watchlist } from "@/lib/types";
+import { deleteWatchlistAction, updateWatchlistAction } from "../actions";
 import { WatchlistRow } from "./WatchlistRow";
 
-interface WatchlistData {
-	key: string;
-	title: string;
-	description?: string;
-	tvShowCount?: number;
-	lastUpdated?: string;
-}
+export function WatchlistList({ items }: { items: Watchlist[] }) {
+	const queryClient = useQueryClient();
+	const [deleteTarget, setDeleteTarget] = useState<Watchlist | null>(null);
+	const [editTarget, setEditTarget] = useState<Watchlist | null>(null);
+	const [editFormKey, setEditFormKey] = useState(0);
 
-export function WatchlistList({ items }: { items: WatchlistData[] }) {
-	const [deleteTarget, setDeleteTarget] = useState<WatchlistData | null>(null);
-	const [editTarget, setEditTarget] = useState<WatchlistData | null>(null);
+	const boundDelete = deleteWatchlistAction.bind(
+		null,
+		deleteTarget?.["@key"] ?? "",
+	);
+	const [deleteState, deleteFormAction, isDeleting] = useActionState(
+		boundDelete,
+		initialActionState,
+	);
 
-	function handleConfirmDelete() {
-		if (!deleteTarget) return;
-		setDeleteTarget(null);
-	}
+	const existingTvShowKeys =
+		editTarget?.tvShows?.map((ref) => ref["@key"]) ?? [];
+	const boundEdit = updateWatchlistAction.bind(null, existingTvShowKeys);
+	const [editState, editFormAction, isEditing] = useActionState(
+		boundEdit,
+		initialActionState,
+	);
 
-	function handleConfirmEdit() {
-		if (!editTarget) return;
-		setEditTarget(null);
-	}
+	useEffect(() => {
+		if (deleteState.success) {
+			queryClient.invalidateQueries({ queryKey: watchlistKeys.all });
+			setDeleteTarget(null);
+		}
+	}, [deleteState, queryClient]);
+
+	useEffect(() => {
+		if (editState.success) {
+			queryClient.invalidateQueries({ queryKey: watchlistKeys.all });
+			setEditTarget(null);
+			setEditFormKey((k) => k + 1);
+		}
+	}, [editState, queryClient]);
 
 	return (
 		<>
 			<div className="flex flex-col gap-1 rounded-xl bg-surface-container-low p-2">
 				{items.map((item) => (
 					<WatchlistRow
-						key={item.key}
+						key={item["@key"]}
 						title={item.title}
 						description={item.description}
-						tvShowCount={item.tvShowCount}
-						lastUpdated={item.lastUpdated}
-						href={`/watchlist/${encodeURIComponent(item.key)}`}
+						tvShowCount={item.tvShows?.length}
+						lastUpdated={item["@lastUpdated"]}
+						href={`/watchlist/${encodeURIComponent(item["@key"])}`}
 						onEdit={() => setEditTarget(item)}
 						onDelete={() => setDeleteTarget(item)}
 					/>
@@ -69,26 +90,36 @@ export function WatchlistList({ items }: { items: WatchlistData[] }) {
 						Update the details for &ldquo;{editTarget?.title}&rdquo;.
 					</ModalDescription>
 				</ModalHeader>
-				<ModalBody>
-					<Input
-						id="edit-watchlist-title"
-						label="Title"
-						defaultValue={editTarget?.title}
-					/>
-					<Textarea
-						id="edit-watchlist-description"
-						label="Description"
-						defaultValue={editTarget?.description}
-					/>
-				</ModalBody>
-				<ModalFooter className="flex-row justify-end">
-					<Button variant="ghost" onClick={() => setEditTarget(null)}>
-						Cancel
-					</Button>
-					<Button variant="primary" onClick={handleConfirmEdit}>
-						Save Changes
-					</Button>
-				</ModalFooter>
+				<form key={editFormKey} action={editFormAction}>
+					<ModalBody>
+						<Input
+							id="edit-watchlist-title"
+							name="title"
+							label="Title"
+							defaultValue={editState.data?.title ?? editTarget?.title}
+						/>
+						<Textarea
+							id="edit-watchlist-description"
+							name="description"
+							label="Description"
+							defaultValue={
+								editState.data?.description ?? editTarget?.description
+							}
+						/>
+					</ModalBody>
+					<ModalFooter className="flex-row justify-end">
+						<Button
+							type="button"
+							variant="ghost"
+							onClick={() => setEditTarget(null)}
+						>
+							Cancel
+						</Button>
+						<Button type="submit" variant="primary" disabled={isEditing}>
+							{isEditing ? "Saving..." : "Save Changes"}
+						</Button>
+					</ModalFooter>
+				</form>
 			</Modal>
 
 			{/* Delete Watchlist Modal */}
@@ -107,22 +138,26 @@ export function WatchlistList({ items }: { items: WatchlistData[] }) {
 						will be permanently removed.
 					</ModalDescription>
 				</ModalHeader>
-				<ModalFooter>
-					<Button
-						variant="destructive"
-						className="w-full"
-						onClick={handleConfirmDelete}
-					>
-						Delete
-					</Button>
-					<Button
-						variant="ghost"
-						className="w-full"
-						onClick={() => setDeleteTarget(null)}
-					>
-						Cancel
-					</Button>
-				</ModalFooter>
+				<form action={deleteFormAction}>
+					<ModalFooter>
+						<Button
+							type="submit"
+							variant="destructive"
+							className="w-full"
+							disabled={isDeleting}
+						>
+							{isDeleting ? "Deleting..." : "Delete"}
+						</Button>
+						<Button
+							type="button"
+							variant="ghost"
+							className="w-full"
+							onClick={() => setDeleteTarget(null)}
+						>
+							Cancel
+						</Button>
+					</ModalFooter>
+				</form>
 			</Modal>
 		</>
 	);

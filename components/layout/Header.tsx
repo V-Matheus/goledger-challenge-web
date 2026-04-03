@@ -2,6 +2,7 @@
 
 import { Moon, Sun } from "lucide-react";
 import type { ComponentProps } from "react";
+import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { useTheme } from "@/hooks/use-theme";
@@ -10,6 +11,11 @@ export interface HeaderProps extends ComponentProps<"header"> {}
 
 export function Header({ className, ...props }: HeaderProps) {
 	const { theme, toggleTheme } = useTheme();
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
 
 	return (
 		<header
@@ -31,11 +37,12 @@ export function Header({ className, ...props }: HeaderProps) {
 				onClick={toggleTheme}
 				className="flex size-9 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
 			>
-				{theme === "dark" ? (
-					<Sun className="size-4" />
-				) : (
-					<Moon className="size-4" />
-				)}
+				{mounted &&
+					(theme === "dark" ? (
+						<Sun className="size-4" />
+					) : (
+						<Moon className="size-4" />
+					))}
 			</button>
 		</header>
 	);

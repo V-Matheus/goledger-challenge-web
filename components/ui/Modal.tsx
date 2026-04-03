@@ -9,6 +9,7 @@ export const modalVariants = tv({
 	base: [
 		"relative flex flex-col gap-6 rounded-xl p-6 shadow-elevated",
 		"bg-surface-container-high",
+		"[&>form]:flex [&>form]:flex-col [&>form]:gap-6",
 	],
 	variants: {
 		size: {

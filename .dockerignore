@@ -1,0 +1,13 @@
+node_modules
+.next
+.git
+.gitignore
+.claude
+tests
+*.md
+.husky
+.nvmrc
+biome.json
+vitest.config.ts
+vitest.setup.ts
+playwright.config.ts

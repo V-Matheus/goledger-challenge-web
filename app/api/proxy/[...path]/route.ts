@@ -6,65 +6,53 @@ const API_PASSWORD = process.env.API_PASSWORD ?? "";
 
 const authHeader = `Basic ${Buffer.from(`${API_USERNAME}:${API_PASSWORD}`).toString("base64")}`;
 
-export async function POST(
+async function parseBody(request: NextRequest) {
+	try {
+		return await request.json();
+	} catch {
+		return undefined;
+	}
+}
+
+async function proxyRequest(
 	request: NextRequest,
-	{ params }: { params: Promise<{ path: string[] }> },
+	params: Promise<{ path: string[] }>,
+	method: string,
 ) {
 	const { path } = await params;
 	const targetPath = `/${path.join("/")}`;
-	const body = await request.json();
+	const body = await parseBody(request);
 
 	const response = await fetch(`${API_BASE_URL}${targetPath}`, {
-		method: "POST",
+		method,
 		headers: {
 			"Content-Type": "application/json",
 			Authorization: authHeader,
 		},
-		body: JSON.stringify(body),
+		...(body !== undefined && { body: JSON.stringify(body) }),
 	});
 
 	const data = await response.json();
 	return NextResponse.json(data, { status: response.status });
+}
+
+export async function POST(
+	request: NextRequest,
+	{ params }: { params: Promise<{ path: string[] }> },
+) {
+	return proxyRequest(request, params, "POST");
 }
 
 export async function PUT(
 	request: NextRequest,
 	{ params }: { params: Promise<{ path: string[] }> },
 ) {
-	const { path } = await params;
-	const targetPath = `/${path.join("/")}`;
-	const body = await request.json();
-
-	const response = await fetch(`${API_BASE_URL}${targetPath}`, {
-		method: "PUT",
-		headers: {
-			"Content-Type": "application/json",
-			Authorization: authHeader,
-		},
-		body: JSON.stringify(body),
-	});
-
-	const data = await response.json();
-	return NextResponse.json(data, { status: response.status });
+	return proxyRequest(request, params, "PUT");
 }
 
 export async function DELETE(
 	request: NextRequest,
 	{ params }: { params: Promise<{ path: string[] }> },
 ) {
-	const { path } = await params;
-	const targetPath = `/${path.join("/")}`;
-	const body = await request.json();
-
-	const response = await fetch(`${API_BASE_URL}${targetPath}`, {
-		method: "DELETE",
-		headers: {
-			"Content-Type": "application/json",
-			Authorization: authHeader,
-		},
-		body: JSON.stringify(body),
-	});
-
-	const data = await response.json();
-	return NextResponse.json(data, { status: response.status });
+	return proxyRequest(request, params, "DELETE");
 }

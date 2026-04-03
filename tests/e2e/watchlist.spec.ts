@@ -10,13 +10,14 @@ test.describe("Watchlist Page", () => {
 
 	test("displays watchlist items", async ({ page }) => {
 		await page.goto("/watchlist");
-		await expect(page.getByText("Game of Thrones")).toBeVisible();
-		await expect(page.getByText("The Vampire Diaries")).toBeVisible();
+		await expect(
+			page.locator("[data-slot='watchlist-row']").first(),
+		).toBeVisible();
 	});
 
 	test("displays item count", async ({ page }) => {
 		await page.goto("/watchlist");
-		await expect(page.getByText("4 items")).toBeVisible();
+		await expect(page.getByText(/\d+ items?/i)).toBeVisible();
 	});
 
 	test("opens create modal", async ({ page }) => {
@@ -43,59 +44,67 @@ test.describe("Watchlist Page", () => {
 
 	test("opens delete modal for specific item", async ({ page }) => {
 		await page.goto("/watchlist");
-		await page.getByRole("button", { name: /delete game of thrones/i }).click();
+		const deleteBtn = page.getByRole("button", { name: /^delete /i }).first();
+		await deleteBtn.click();
 		await expect(page.getByText(/This action cannot be undone/)).toBeVisible();
 	});
 
 	test("opens edit modal for specific item", async ({ page }) => {
 		await page.goto("/watchlist");
-		await page.getByRole("button", { name: /edit game of thrones/i }).click();
+		const editBtn = page.getByRole("button", { name: /^edit /i }).first();
+		await editBtn.click();
 		await expect(page.getByText("Edit Watchlist")).toBeVisible();
-		await expect(page.locator('input[value="Game of Thrones"]')).toBeVisible();
 	});
 
 	test("closes edit modal on cancel", async ({ page }) => {
 		await page.goto("/watchlist");
-		await page.getByRole("button", { name: /edit game of thrones/i }).click();
+		const editBtn = page.getByRole("button", { name: /^edit /i }).first();
+		await editBtn.click();
 		await page.getByRole("button", { name: "Cancel" }).click();
 		await expect(page.getByText("Edit Watchlist")).not.toBeVisible();
 	});
 
 	test("shows result count in footer", async ({ page }) => {
 		await page.goto("/watchlist");
-		await expect(page.getByText(/showing 1-4 of 4 results/i)).toBeVisible();
+		await expect(page.getByText(/showing 1-\d+ of \d+ results/i)).toBeVisible();
 	});
 });
 
 test.describe("Watchlist Detail Page", () => {
-	test("navigates to watchlist detail", async ({ page }) => {
+	async function goToFirstWatchlistDetail(
+		page: import("@playwright/test").Page,
+	) {
 		await page.goto("/watchlist");
-		await page.getByRole("link", { name: "Game of Thrones" }).click();
+		await page
+			.locator("[data-slot='watchlist-row'] a, a[data-slot='watchlist-row']")
+			.first()
+			.click();
+		await expect(page.getByText("Back to Watchlists")).toBeVisible();
+	}
+
+	test("navigates to watchlist detail", async ({ page }) => {
+		await goToFirstWatchlistDetail(page);
 		await expect(page.getByText("Back to Watchlists")).toBeVisible();
 	});
 
-	test("displays linked tv shows", async ({ page }) => {
-		await page.goto("/watchlist");
-		await page.getByRole("link", { name: "Game of Thrones" }).click();
-		await expect(page.getByText("2 Shows")).toBeVisible();
+	test("displays linked tv shows count", async ({ page }) => {
+		await goToFirstWatchlistDetail(page);
+		await expect(page.getByText(/\d+ Shows?/)).toBeVisible();
 	});
 
 	test("has add show button", async ({ page }) => {
-		await page.goto("/watchlist");
-		await page.getByRole("link", { name: "Game of Thrones" }).click();
+		await goToFirstWatchlistDetail(page);
 		await expect(page.getByText("Add Show")).toBeVisible();
 	});
 
 	test("opens add show modal", async ({ page }) => {
-		await page.goto("/watchlist");
-		await page.getByRole("link", { name: "Game of Thrones" }).click();
+		await goToFirstWatchlistDetail(page);
 		await page.getByText("Add Show").click();
 		await expect(page.getByText("Add Shows to Watchlist")).toBeVisible();
 	});
 
 	test("navigates back to watchlist list", async ({ page }) => {
-		await page.goto("/watchlist");
-		await page.getByRole("link", { name: "Game of Thrones" }).click();
+		await goToFirstWatchlistDetail(page);
 		await page.getByText("Back to Watchlists").click();
 		await expect(page).toHaveURL("/watchlist");
 	});

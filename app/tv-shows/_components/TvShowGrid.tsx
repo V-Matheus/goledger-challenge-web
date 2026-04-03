@@ -113,7 +113,10 @@ export function TvShowGrid({ items }: { items: TvShow[] }) {
 
 							<div className="flex items-center justify-between pt-1">
 								{show["@lastUpdated"] && (
-									<span className="text-[10px] font-medium uppercase tracking-wider text-on-surface-variant">
+									<span
+										suppressHydrationWarning
+										className="text-[10px] font-medium uppercase tracking-wider text-on-surface-variant"
+									>
 										{formatTimeAgo(show["@lastUpdated"])}
 									</span>
 								)}

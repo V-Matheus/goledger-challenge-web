@@ -47,7 +47,7 @@ export function WatchlistDetailContent({
 	return (
 		<div className="flex flex-col gap-6">
 			{/* Header */}
-			<div className="flex items-start justify-between">
+			<div className="flex items-start justify-between max-md:flex-col max-md:gap-3">
 				<div className="flex flex-col gap-3">
 					<Link
 						href="/watchlist"
@@ -57,11 +57,11 @@ export function WatchlistDetailContent({
 						Back to Watchlists
 					</Link>
 					<div className="flex flex-col gap-1">
-						<h1 className="font-display text-3xl font-bold text-on-surface">
+						<h1 className="font-display text-3xl font-bold text-on-surface max-md:text-xl">
 							{watchlist.title}
 						</h1>
 						{watchlist.description && (
-							<p className="max-w-xl text-sm text-on-surface-variant">
+							<p className="max-w-xl text-sm text-on-surface-variant max-md:text-xs">
 								{watchlist.description}
 							</p>
 						)}
@@ -86,7 +86,7 @@ export function WatchlistDetailContent({
 					</p>
 				)}
 
-				<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+				<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 max-md:gap-2">
 					{linkedShows.map((show: TvShow) => (
 						<ShowCard
 							key={show["@key"]}
@@ -139,13 +139,13 @@ function ShowCard({
 	}, [state, onRemoved]);
 
 	return (
-		<div className="group relative flex items-center gap-4 rounded-xl bg-surface-container-low p-4 transition-colors hover:bg-surface-container">
+		<div className="group relative flex items-center gap-4 rounded-xl bg-surface-container-low p-4 transition-colors hover:bg-surface-container max-md:gap-3 max-md:p-3">
 			<Link
 				href={`/tv-shows/${encodeURIComponent(show["@key"])}`}
-				className="flex flex-1 items-center gap-4"
+				className="flex flex-1 items-center gap-4 max-md:gap-3"
 			>
-				<div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-dim/30 to-primary/10">
-					<Tv className="size-5 text-on-surface-variant/40" />
+				<div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-dim/30 to-primary/10 max-md:size-10 max-md:rounded-lg">
+					<Tv className="size-5 text-on-surface-variant/40 max-md:size-4" />
 				</div>
 				<div className="flex min-w-0 flex-1 flex-col gap-0.5">
 					<span className="truncate text-sm font-semibold text-on-surface">

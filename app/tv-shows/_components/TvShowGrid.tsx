@@ -82,7 +82,7 @@ export function TvShowGrid({ items }: { items: TvShow[] }) {
 
 	return (
 		<>
-			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-md:grid-cols-2 max-md:gap-3">
 				{items.map((show) => (
 					<div
 						key={show["@key"]}
@@ -90,9 +90,9 @@ export function TvShowGrid({ items }: { items: TvShow[] }) {
 					>
 						<Link
 							href={`/tv-shows/${encodeURIComponent(show["@key"])}`}
-							className="flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-primary-dim/30 to-primary/10"
+							className="flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-primary-dim/30 to-primary/10 max-md:aspect-square"
 						>
-							<span className="text-5xl font-bold text-on-surface/10 select-none">
+							<span className="text-5xl font-bold text-on-surface/10 select-none max-md:text-3xl">
 								{getInitials(show.title)}
 							</span>
 							<div className="absolute right-3 top-3">
@@ -100,14 +100,14 @@ export function TvShowGrid({ items }: { items: TvShow[] }) {
 							</div>
 						</Link>
 
-						<div className="flex flex-col gap-2 p-4">
+						<div className="flex flex-col gap-2 p-4 max-md:gap-1 max-md:p-3">
 							<Link
 								href={`/tv-shows/${encodeURIComponent(show["@key"])}`}
-								className="truncate text-sm font-semibold text-on-surface"
+								className="truncate text-sm font-semibold text-on-surface max-md:text-xs"
 							>
 								{show.title}
 							</Link>
-							<p className="line-clamp-2 text-xs leading-relaxed text-on-surface-variant">
+							<p className="line-clamp-2 text-xs leading-relaxed text-on-surface-variant max-md:line-clamp-1">
 								{show.description}
 							</p>
 

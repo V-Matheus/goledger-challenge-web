@@ -13,12 +13,12 @@ export function TvShowsContent() {
 	return (
 		<div className="flex flex-col gap-6">
 			{/* Header */}
-			<div className="flex items-start justify-between">
+			<div className="flex items-start justify-between max-md:flex-col max-md:gap-3">
 				<div className="flex flex-col gap-1">
-					<h1 className="font-display text-3xl font-bold text-on-surface">
+					<h1 className="font-display text-3xl font-bold text-on-surface max-md:text-xl">
 						TV Shows
 					</h1>
-					<p className="text-sm text-on-surface-variant">
+					<p className="text-sm text-on-surface-variant max-md:text-xs">
 						Browse and manage your collection of{" "}
 						<span className="font-medium text-primary-text">{count} shows</span>
 						.

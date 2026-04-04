@@ -162,6 +162,9 @@
 	--shadow-ambient: 0px 12px 32px var(--shadow-ambient);
 	--shadow-elevated: 0px 8px 48px var(--shadow-elevated);
 
+	/* Animations */
+	--animate-slide-up: slide-up 0.3s ease-out;
+
 	/* Border Radius */
 	--radius-sm: 0.25rem;
 	--radius-DEFAULT: 0.5rem;
@@ -241,6 +244,10 @@ dialog[data-slot="modal"] {
 	background: transparent;
 }
 
+dialog[data-slot="modal"][data-mobile] {
+	align-items: flex-end;
+}
+
 dialog[data-slot="modal"]:not([open]) {
 	display: none;
 }
@@ -248,4 +255,13 @@ dialog[data-slot="modal"]:not([open]) {
 dialog[data-slot="modal"]::backdrop {
 	background: rgb(0 0 0 / 60%);
 	backdrop-filter: blur(4px);
+}
+
+@keyframes slide-up {
+	from {
+		transform: translateY(100%);
+	}
+	to {
+		transform: translateY(0);
+	}
 }

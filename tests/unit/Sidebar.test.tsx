@@ -33,11 +33,11 @@ describe("Sidebar", () => {
 		expect(screen.getByText("Cinematic Curator")).toBeInTheDocument();
 	});
 
-	it("renders all navigation items", () => {
+	it("renders all navigation items in both layouts", () => {
 		render(<Sidebar />);
-		expect(screen.getByText("Dashboard")).toBeInTheDocument();
-		expect(screen.getByText("TV Shows")).toBeInTheDocument();
-		expect(screen.getByText("Watchlist")).toBeInTheDocument();
+		expect(screen.getAllByText("Dashboard")).toHaveLength(2);
+		expect(screen.getAllByText("TV Shows")).toHaveLength(2);
+		expect(screen.getAllByText("Watchlist")).toHaveLength(2);
 	});
 
 	it("renders correct navigation links", () => {
@@ -54,14 +54,18 @@ describe("Sidebar", () => {
 
 	it("marks active page with data-active attribute", () => {
 		render(<Sidebar />);
-		const tvShowsLink = screen.getByText("TV Shows").closest("a");
-		expect(tvShowsLink).toHaveAttribute("data-active");
+		const tvShowsLinks = screen.getAllByText("TV Shows");
+		for (const link of tvShowsLinks) {
+			expect(link.closest("a")).toHaveAttribute("data-active");
+		}
 	});
 
 	it("does not mark inactive pages with data-active", () => {
 		render(<Sidebar />);
-		const dashboardLink = screen.getByText("Dashboard").closest("a");
-		expect(dashboardLink).not.toHaveAttribute("data-active");
+		const dashboardLinks = screen.getAllByText("Dashboard");
+		for (const link of dashboardLinks) {
+			expect(link.closest("a")).not.toHaveAttribute("data-active");
+		}
 	});
 
 	it("applies custom className", () => {

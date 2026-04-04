@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { type ComponentProps, useEffect, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 import { tv, type VariantProps } from "tailwind-variants";
+import { useMobile } from "@/hooks/use-mobile";
 
 export const modalVariants = tv({
 	base: [
@@ -37,6 +38,7 @@ export function Modal({
 	...props
 }: ModalProps) {
 	const ref = useRef<HTMLDialogElement>(null);
+	const isMobile = useMobile();
 
 	useEffect(() => {
 		const dialog = ref.current;
@@ -63,13 +65,26 @@ export function Modal({
 		<dialog
 			ref={ref}
 			data-slot="modal"
+			data-mobile={isMobile ? "" : undefined}
 			onClose={onClose}
 			onClick={handleBackdropInteraction}
 			onKeyDown={handleBackdropInteraction}
 			{...props}
 		>
 			{open && (
-				<div className={twMerge(modalVariants({ size }), className)}>
+				<div
+					className={twMerge(
+						modalVariants({ size }),
+						isMobile &&
+							"max-h-[85dvh] w-full max-w-none animate-slide-up overflow-y-auto rounded-b-none rounded-t-2xl pb-8",
+						className,
+					)}
+				>
+					{isMobile && (
+						<div className="flex justify-center pb-2">
+							<div className="h-1 w-10 rounded-full bg-outline-variant" />
+						</div>
+					)}
 					{children}
 				</div>
 			)}

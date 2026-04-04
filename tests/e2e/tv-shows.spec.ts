@@ -67,6 +67,36 @@ test.describe("TV Show Detail Page", () => {
 		await expect(page.getByText("Back to TV Shows")).toBeVisible();
 	}
 
+	async function ensureSeasonExists(page: import("@playwright/test").Page) {
+		await goToFirstShowDetail(page);
+		const seasonVisible = await page
+			.getByText(/Season \d+/)
+			.first()
+			.isVisible()
+			.catch(() => false);
+		if (seasonVisible) return;
+
+		const seasonNumber = String(Math.floor(Math.random() * 900) + 100);
+		await page.getByText("Add Season").click();
+		await page.getByPlaceholder("e.g. 1").fill(seasonNumber);
+		await page.getByPlaceholder("e.g. 2024").fill("2024");
+		await page.getByRole("button", { name: "Save" }).click();
+
+		// Wait for modal to close and season to appear, or handle error overlay
+		try {
+			await expect(page.getByText(/Season \d+/).first()).toBeVisible({
+				timeout: 10000,
+			});
+		} catch {
+			// If creation failed (e.g. API error), reload and check again
+			await page.reload();
+			await expect(page.getByText("Back to TV Shows")).toBeVisible();
+			await expect(page.getByText(/Season \d+/).first()).toBeVisible({
+				timeout: 10000,
+			});
+		}
+	}
+
 	test("displays show info", async ({ page }) => {
 		await goToFirstShowDetail(page);
 		await expect(page.locator("[data-slot='badge']").first()).toBeVisible();
@@ -74,12 +104,12 @@ test.describe("TV Show Detail Page", () => {
 	});
 
 	test("displays seasons", async ({ page }) => {
-		await goToFirstShowDetail(page);
+		await ensureSeasonExists(page);
 		await expect(page.getByText(/Season \d+/).first()).toBeVisible();
 	});
 
 	test("collapses and expands season", async ({ page }) => {
-		await goToFirstShowDetail(page);
+		await ensureSeasonExists(page);
 		const collapseBtn = page
 			.getByRole("button", { name: /collapse season/i })
 			.first();
@@ -103,13 +133,13 @@ test.describe("TV Show Detail Page", () => {
 	});
 
 	test("opens add episode modal", async ({ page }) => {
-		await goToFirstShowDetail(page);
+		await ensureSeasonExists(page);
 		await page.getByText("Add Episode").first().click();
 		await expect(page.getByText("Episode Number")).toBeVisible();
 	});
 
 	test("opens edit season modal", async ({ page }) => {
-		await goToFirstShowDetail(page);
+		await ensureSeasonExists(page);
 		const editBtn = page
 			.getByRole("button", { name: /edit season \d+/i })
 			.first();
@@ -118,7 +148,7 @@ test.describe("TV Show Detail Page", () => {
 	});
 
 	test("opens delete season modal", async ({ page }) => {
-		await goToFirstShowDetail(page);
+		await ensureSeasonExists(page);
 		const deleteBtn = page
 			.getByRole("button", { name: /delete season \d+/i })
 			.first();

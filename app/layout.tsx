@@ -38,11 +38,11 @@ export default async function RootLayout({
 		>
 			<body className="min-h-full flex flex-col font-body">
 				<AppProviders>
-					<div className="flex h-screen overflow-hidden bg-background">
+					<div className="flex h-screen overflow-hidden bg-background max-md:flex-col">
 						<Sidebar />
 						<div className="flex flex-1 flex-col overflow-hidden">
 							<Header />
-							<main className="flex-1 overflow-y-auto px-8 pb-8">
+							<main className="flex-1 overflow-y-auto px-8 pb-8 max-md:px-4 max-md:pb-20">
 								{children}
 							</main>
 						</div>

@@ -43,15 +43,15 @@ export function TvShowDetailContent({ showKey }: { showKey: string }) {
 					Back to TV Shows
 				</Link>
 
-				<div className="flex items-start justify-between">
+				<div className="flex items-start justify-between max-md:flex-col max-md:gap-3">
 					<div className="flex max-w-2xl flex-col gap-3">
 						<div className="flex items-center gap-3">
-							<h1 className="font-display text-3xl font-bold text-on-surface">
+							<h1 className="font-display text-3xl font-bold text-on-surface max-md:text-xl">
 								{tvShow.title}
 							</h1>
 							<Badge>{tvShow.recommendedAge}+</Badge>
 						</div>
-						<p className="text-sm leading-relaxed text-on-surface-variant">
+						<p className="text-sm leading-relaxed text-on-surface-variant max-md:text-xs">
 							{tvShow.description}
 						</p>
 						<div className="flex items-center gap-4 text-xs text-on-surface-variant">

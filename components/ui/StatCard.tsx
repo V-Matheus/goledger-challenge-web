@@ -32,7 +32,7 @@ export function StatCard({
 		<div
 			data-slot="stat-card"
 			className={twMerge(
-				"flex flex-1 flex-col gap-1 rounded-xl bg-surface-container-high p-5",
+				"flex flex-1 flex-col gap-1 rounded-xl bg-surface-container-high p-5 max-md:p-3",
 				className,
 			)}
 			{...props}
@@ -47,7 +47,9 @@ export function StatCard({
 					</div>
 				)}
 			</div>
-			<span className="text-3xl font-bold text-on-surface">{value}</span>
+			<span className="text-3xl font-bold text-on-surface max-md:text-xl">
+				{value}
+			</span>
 			{detail && (
 				<span className="text-xs text-on-surface-variant">{detail}</span>
 			)}

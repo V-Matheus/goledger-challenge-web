@@ -62,7 +62,7 @@ export function WatchlistRow({
 		<>
 			<div
 				className={twMerge(
-					"flex size-12 shrink-0 items-center justify-center rounded-xl text-sm font-bold text-on-primary-fixed",
+					"flex size-12 shrink-0 items-center justify-center rounded-xl text-sm font-bold text-on-primary-fixed max-md:size-10 max-md:rounded-lg max-md:text-xs",
 					getColor(title),
 				)}
 			>
@@ -80,7 +80,7 @@ export function WatchlistRow({
 				)}
 			</div>
 
-			<div className="flex shrink-0 flex-col items-end gap-0.5">
+			<div className="flex shrink-0 flex-col items-end gap-0.5 max-md:hidden">
 				<span className="text-xs font-medium text-on-surface">
 					{tvShowCount ?? 0} {tvShowCount === 1 ? "show" : "shows"}
 				</span>
@@ -131,7 +131,7 @@ export function WatchlistRow({
 	);
 
 	const sharedClassName = twMerge(
-		"group flex items-center gap-4 rounded-xl p-4 transition-colors hover:bg-surface-container-high",
+		"group flex items-center gap-4 rounded-xl p-4 transition-colors hover:bg-surface-container-high max-md:gap-3 max-md:p-3",
 		className,
 	);
 

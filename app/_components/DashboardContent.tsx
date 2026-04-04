@@ -39,15 +39,15 @@ export function DashboardContent() {
 		.slice(0, 4);
 
 	return (
-		<div className="flex gap-8">
-			<div className="flex flex-1 flex-col gap-8">
+		<div className="flex gap-8 max-md:flex-col max-md:gap-6">
+			<div className="flex flex-1 flex-col gap-8 max-md:gap-5">
 				{/* Header */}
-				<div className="flex items-start justify-between">
+				<div className="flex items-start justify-between max-md:flex-col max-md:gap-3">
 					<div className="flex flex-col gap-1">
-						<h1 className="font-display text-3xl font-bold text-on-surface">
+						<h1 className="font-display text-3xl font-bold text-on-surface max-md:text-xl">
 							Network Dashboard
 						</h1>
-						<p className="flex items-center gap-2 text-sm text-on-surface-variant">
+						<p className="flex items-center gap-2 text-sm text-on-surface-variant max-md:text-xs">
 							<span className="inline-block size-1.5 rounded-full bg-success" />
 							Blockchain API Connection: Stable
 						</p>
@@ -63,7 +63,7 @@ export function DashboardContent() {
 				</div>
 
 				{/* Stats */}
-				<div className="flex gap-4">
+				<div className="grid grid-cols-4 gap-4 max-md:grid-cols-2 max-md:gap-3">
 					<StatCard
 						label="Total TV Shows"
 						value={String(shows.length)}
@@ -87,9 +87,9 @@ export function DashboardContent() {
 				</div>
 
 				{/* Recently Added */}
-				<div className="flex flex-col gap-4">
+				<div className="flex flex-col gap-4 max-md:gap-3">
 					<div className="flex items-center justify-between">
-						<h2 className="text-lg font-semibold text-on-surface">
+						<h2 className="text-lg font-semibold text-on-surface max-md:text-base">
 							Recently Added
 						</h2>
 						<Link
@@ -114,7 +114,7 @@ export function DashboardContent() {
 					)}
 
 					{!showsLoading && recentShows.length > 0 && (
-						<div className="flex gap-4 overflow-x-auto pb-2">
+						<div className="flex gap-4 overflow-x-auto pb-2 max-md:gap-3">
 							{recentShows.map((show) => (
 								<ShowCard
 									key={show["@key"]}
@@ -130,7 +130,7 @@ export function DashboardContent() {
 			</div>
 
 			{/* Right Panel */}
-			<div className="flex w-72 shrink-0 flex-col gap-6">
+			<div className="flex w-72 shrink-0 flex-col gap-6 max-md:w-full">
 				{/* Active Watchlists */}
 				<div className="flex flex-col gap-3">
 					<div className="flex items-center justify-between">

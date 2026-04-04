@@ -40,13 +40,13 @@ export function ShowCard({
 		<div
 			data-slot="show-card"
 			className={twMerge(
-				"group flex w-64 shrink-0 cursor-pointer flex-col overflow-hidden rounded-xl bg-surface-container-high transition-colors hover:bg-surface-container-highest",
+				"group flex w-64 shrink-0 cursor-pointer flex-col overflow-hidden rounded-xl bg-surface-container-high transition-colors hover:bg-surface-container-highest max-md:w-44",
 				className,
 			)}
 			{...props}
 		>
-			<div className="relative flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-primary-dim/30 to-primary/10">
-				<span className="text-5xl font-bold text-on-surface/10 select-none">
+			<div className="relative flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-primary-dim/30 to-primary/10 max-md:aspect-[3/2]">
+				<span className="text-5xl font-bold text-on-surface/10 select-none max-md:text-3xl">
 					{getInitials(title)}
 				</span>
 				<div className="absolute right-3 top-3">
@@ -54,7 +54,7 @@ export function ShowCard({
 				</div>
 			</div>
 
-			<div className="flex flex-col gap-2 p-4">
+			<div className="flex flex-col gap-2 p-4 max-md:gap-1 max-md:p-3">
 				<h3 className="truncate text-sm font-semibold text-on-surface">
 					{title}
 				</h3>
